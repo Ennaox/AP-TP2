@@ -75,14 +75,14 @@ vector scalar_add_vectors(vector a, vector b)
         "movq (%[_ax]),%%xmm0;\n"
         "movq (%[_bx]), %%xmm1;\n"
 
-        "addpd %%xmm1,%%xmm0;\n"
+        "addsd %%xmm1,%%xmm0;\n"
 
         "movq %%xmm0, (%[_cx]);\n"
         
         "movq (%[_ay]),%%xmm0;\n"
         "movq (%[_by]), %%xmm1;\n"
 
-        "addpd %%xmm1, %%xmm0;\n"
+        "addsd %%xmm1, %%xmm0;\n"
 
         "movq %%xmm0, (%[_cy]);\n"
 
@@ -118,13 +118,13 @@ vector scalar_scale_vector(double b, vector a)
         "movq (%[_ax]),%%xmm0;\n"
         "movq (%[_b]),%%xmm1;\n"
 
-        "mulpd %%xmm1,%%xmm0;\n"
+        "mulsd %%xmm1,%%xmm0;\n"
         "movq %%xmm0,(%[_ax]);\n"
 
         "movq (%[_ay]), %%xmm0;\n"
         "movq (%[_b]),%%xmm1;\n"
 
-        "mulpd %%xmm1, %%xmm0;\n"
+        "mulsd %%xmm1, %%xmm0;\n"
         "movq %%xmm0,(%[_ay]);\n"
 
         : //outputs
@@ -157,13 +157,13 @@ vector scalar_sub_vectors(vector a, vector b)
         "movq (%[_ax]),%%xmm0;\n"
         "movq (%[_bx]),%%xmm1;\n"
 
-        "subpd %%xmm1, %%xmm0;\n"
+        "subsd %%xmm1, %%xmm0;\n"
         "movq %%xmm0, (%[_cx]);\n"
         
         "movq (%[_ay]), %%xmm0;\n"
         "movq (%[_by]), %%xmm1;\n"
 
-        "subpd %%xmm1, %%xmm0;\n"
+        "subsd %%xmm1, %%xmm0;\n"
         "movq %%xmm0, (%[_cy]);\n"
         
         : //outputs

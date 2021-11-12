@@ -72,28 +72,21 @@ vector vect_add_vectors(vector a, vector b)
 
   __asm__ volatile (
         
-        "movq %[_ax],%%xmm0;\n"
-        "movhpd %[_ay], %%xmm0;\n"
+        "movupd %[_a], %%xmm0;\n"
 
-        "movq %[_bx],%%xmm1;\n"
-        "movhpd %[_by], %%xmm1;\n"
+        "movupd %[_b],%%xmm1;\n"
 
         "addpd %%xmm1, %%xmm0;\n"
 
-        "movq %%xmm0, %[_cx];\n"
-        "movhlps %%xmm0, %%xmm0;\n"
-        "movq %%xmm0, %[_cy];\n"
+        "movupd %%xmm0, %[_c];\n"
 
         
         : //outputs
 
         : //inputs
-          [_ax] "m" (a.x),
-          [_ay] "m" (a.y),
-          [_bx] "m" (b.x),
-          [_by] "m" (b.y),
-          [_cx] "m" (c.x),
-          [_cy] "m" (c.y)
+          [_a] "m" (a),
+          [_b] "m" (b),
+          [_c] "m" (c)
           
         : //clobbers
           "cc", "memory", "xmm0", "xmm1"
@@ -113,23 +106,19 @@ vector vect_scale_vector(double b, vector a)
 {
   __asm__ volatile (
         
-        "movq %[_ax],%%xmm0;\n"
-        "movhpd %[_ay], %%xmm0;\n"
+        "movupd %[_a],%%xmm0;\n"
         
         "movq %[_b],%%xmm1;\n"
         "movhpd %[_b], %%xmm1;\n"
 
         "mulpd %%xmm1, %%xmm0;\n"
 
-        "movq %%xmm0, %[_ax];\n"
-        "movhlps %%xmm0,%%xmm0;\n"
-        "movq %%xmm0, %[_ay];\n"
+        "movupd %%xmm0, %[_a];\n"
 
         : //outputs
 
         : //inputs
-          [_ax] "m" (a.x),
-          [_ay] "m" (a.y),
+          [_a] "m" (a),
           [_b] "m" (b)
           
         : //clobbers
@@ -152,28 +141,21 @@ vector vect_sub_vectors(vector a, vector b)
 
   __asm__ volatile (
         
-        "movq %[_ax],%%xmm0;\n"
-        "movhpd %[_ay], %%xmm0;\n"
+        "movupd %[_a],%%xmm0;\n"
 
-        "movq %[_bx],%%xmm1;\n"
-        "movhpd %[_by], %%xmm1;\n"
+        "movupd %[_b],%%xmm1;\n"
 
         "subpd %%xmm1, %%xmm0;\n"
 
-        "movq %%xmm0, %[_cx];\n"
-        "movhlps %%xmm0, %%xmm0;\n"
-        "movq %%xmm0, %[_cy];\n"
+        "movupd %%xmm0, %[_c];\n"
 
         
         : //outputs
 
         : //inputs
-          [_ax] "m" (a.x),
-          [_ay] "m" (a.y),
-          [_bx] "m" (b.x),
-          [_by] "m" (b.y),
-          [_cx] "m" (c.x),
-          [_cy] "m" (c.y)
+          [_a] "m" (a),
+          [_b] "m" (b),
+          [_c] "m" (c)
           
         : //clobbers
           "cc", "memory", "xmm0", "xmm1"
@@ -193,16 +175,15 @@ double vect_mod(vector a)
 
   __asm__ volatile (
         
-        "movq %[_ax],%%xmm0;\n"
-        "movhpd %[_ay], %%xmm0;\n"
+        "movupd %[_a],%%xmm0;\n"
 
         "mulpd %%xmm0, %%xmm0;\n"
 
         "movhlps %%xmm0, %%xmm1;\n"
 
-        "addsd %%xmm1, %%xmm0;\n"
+        "addpd %%xmm1, %%xmm0;\n"
 
-        "sqrtsd %%xmm0, %%xmm0;\n"
+        "sqrtpd %%xmm0, %%xmm0;\n"
 
         "movq %%xmm0, %[_r];\n"
 
@@ -211,8 +192,7 @@ double vect_mod(vector a)
           [_r] "=r" (result)
 
         : //inputs
-          [_ax] "m" (a.x),
-          [_ay] "m" (a.y)
+          [_a] "m" (a)
           
           
         : //clobbers
