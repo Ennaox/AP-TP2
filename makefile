@@ -1,16 +1,16 @@
-all: exe scal_exe vect_exe
+all: exe scal_exe vect_exe soa_exe
 
 exe: nbody0
-	taskset -c 4 ./nbody0 > out0.dat
+	taskset -c 3 ./nbody0 > out0.dat
 
 scal_exe: scalar_nbody0
-	taskset -c 4 ./scalar_nbody0 > out0_sd.dat
+	taskset -c 3 ./scalar_nbody0 > out0_sd.dat
 
 vect_exe: vect_nbody0
-	taskset -c 4 ./vect_nbody0 > out0_pd.dat
+	taskset -c 3 ./vect_nbody0 > out0_pd.dat
 
 soa_exe: soa_nbody0
-	taskset -c 4 ./soa_nbody0 > out0_soa.dat
+	taskset -c 3 ./soa_nbody0 > out0_soa.dat
 
 nbody0: nbody0.c
 	gcc -g -Ofast -funroll-loops -finline-functions -ftree-vectorize $< -o $@ -lm -lSDL2 

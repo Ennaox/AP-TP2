@@ -91,7 +91,7 @@ vector vect_add_vectors(vector a, vector b)
         : //clobbers
           "cc", "memory", "xmm0", "xmm1"
         );
-return c;
+  return c;
 }
 
 //
@@ -160,7 +160,7 @@ vector vect_sub_vectors(vector a, vector b)
         : //clobbers
           "cc", "memory", "xmm0", "xmm1"
         );
-return c;
+  return c;
 }
 
 //

@@ -15,13 +15,6 @@
 #include "rdtsc.h"
 
 //
-typedef struct {
-
-  double x, y;
-  
-} vector;
-
-//
 int w, h;
 
 //
@@ -31,7 +24,7 @@ int nbodies, timeSteps;
 double *masses, GravConstant;
 
 //
-vector *positions, *velocities, *accelerations;
+double *positions_x, *positions_y, *velocities_x, *velocities_y, *accelerations_x, *accelerations_y;
 
 //
 unsigned long long rdtsc(void)
@@ -66,78 +59,12 @@ vector add_vectors(vector a, vector b)
   return c;
 }
 
-vector scalar_add_vectors(vector a, vector b)
-{
-  vector c;
-
-  __asm__ volatile (
-        
-        "movq (%[_ax]),%%xmm0;\n"
-        "movq (%[_bx]), %%xmm1;\n"
-
-        "addsd %%xmm1,%%xmm0;\n"
-
-        "movq %%xmm0, (%[_cx]);\n"
-        
-        "movq (%[_ay]),%%xmm0;\n"
-        "movq (%[_by]), %%xmm1;\n"
-
-        "addsd %%xmm1, %%xmm0;\n"
-
-        "movq %%xmm0, (%[_cy]);\n"
-
-        
-        : //outputs
-
-        : //inputs
-          [_ax] "r" (&a.x),
-          [_ay] "r" (&a.y),
-          [_bx] "r" (&b.x),
-          [_by] "r" (&b.y),
-          [_cx] "r" (&c.x),
-          [_cy] "r" (&c.y)
-          
-        : //clobbers
-          "cc", "memory", "xmm0", "xmm1"
-        );
-  return c;
-}
-
 //
 vector scale_vector(double b, vector a)
 {
   vector c = { b * a.x, b * a.y };
   
   return c;
-}
-
-vector scalar_scale_vector(double b, vector a)
-{
-  __asm__ volatile (
-        
-        "movq (%[_ax]),%%xmm0;\n"
-        "movq (%[_b]),%%xmm1;\n"
-
-        "mulsd %%xmm1,%%xmm0;\n"
-        "movq %%xmm0,(%[_ax]);\n"
-
-        "movq (%[_ay]), %%xmm0;\n"
-        "movq (%[_b]),%%xmm1;\n"
-
-        "mulsd %%xmm1, %%xmm0;\n"
-        "movq %%xmm0,(%[_ay]);\n"
-
-        : //outputs
-
-        : //inputs
-          [_ax] "r" (&a.x),
-          [_ay] "r" (&a.y),
-          [_b] "r" (&b)
-          
-        : //clobbers
-          "cc", "memory", "xmm0", "xmm1"
-        );
-  return a;
 }
 
 //
@@ -148,77 +75,10 @@ vector sub_vectors(vector a, vector b)
   return c;
 }
 
-vector scalar_sub_vectors(vector a, vector b)
-{
-   vector c;
-
-  __asm__ volatile (
-        
-        "movq (%[_ax]),%%xmm0;\n"
-        "movq (%[_bx]),%%xmm1;\n"
-
-        "subsd %%xmm1, %%xmm0;\n"
-        "movq %%xmm0, (%[_cx]);\n"
-        
-        "movq (%[_ay]), %%xmm0;\n"
-        "movq (%[_by]), %%xmm1;\n"
-
-        "subsd %%xmm1, %%xmm0;\n"
-        "movq %%xmm0, (%[_cy]);\n"
-        
-        : //outputs
-
-        : //inputs
-          [_ax] "r" (&a.x),
-          [_ay] "r" (&a.y),
-          [_bx] "r" (&b.x),
-          [_by] "r" (&b.y),
-          [_cx] "r" (&c.x),
-          [_cy] "r" (&c.y)
-          
-        : //clobbers
-          "cc", "memory", "xmm0", "xmm1"
-        );
-  return c;
-}
-
 //
 double mod(vector a)
 {
   return sqrt(a.x * a.x + a.y * a.y);
-}
-
-double scalar_mod(vector a)
-{
-  double result;
-
-  __asm__ volatile (
-        
-        "movq (%[_ax]),%%xmm0;\n"
-        "mulsd %%xmm0, %%xmm0;\n"
-
-        "movq (%[_ay]),%%xmm1;\n"
-        "mulsd %%xmm1, %%xmm1;\n"
-
-        "addsd %%xmm1, %%xmm0;\n"
-
-        "sqrtsd %%xmm0, %%xmm0;\n"
-
-        "movapd %%xmm0, (%[_r]);\n"
-
-        
-        : //outputs
-
-        : //inputs
-          [_ax] "r" (&a.x),
-          [_ay] "r" (&a.y),
-          [_r] "r" (&result)
-          
-        : //clobbers
-          "cc", "memory", "xmm0", "xmm1"
-        );
-
-  return result;
 }
 
 //
@@ -302,45 +162,11 @@ void simulate()
   resolve_collisions();
 }
 
-
-unsigned test()
-{
-  vector a = {randreal(), randreal()};
-  vector b = {randreal(), randreal()};
-  
-  vector c = add_vectors(a,b);
-  vector d = scalar_add_vectors(a,b);
-
-  if(c.x != d.x || c.y != d.y)
-    return printf("c.x = %lf, d.x = %lf\nc.y = %lf, d.y = %lf\nERROR scalar_add_vectors != scalar_add_vectors\n",c.x,d.x,c.y,d.y), 1;
-
-  c = sub_vectors(a,b);
-  d = scalar_sub_vectors(a,b);
-
-  if(c.x != d.x || c.y != d.y)
-    return printf("c.x = %lf, d.x = %lf\nc.y = %lf, d.y = %lf\nERROR scalar_sub_vectors != sub_vectors\n",c.x,d.x,c.y,d.y), 1;
-
-  double factor = randreal();
-  c = scale_vector(factor,a);
-  d = scalar_scale_vector(factor,a);
-
-  if(c.x != d.x || c.y != d.y)
-    return printf("c.x = %lf, d.x = %lf\nc.y = %lf, d.y = %lf\nERROR scalar_scale_vectors != scale_vectors\n",c.x,d.x,c.y,d.y), 1;
-
-  double d1 = mod(a);
-  double d2 = scalar_mod(a);
-
-  if(d1 != d2)
-    return printf("d1 = %lf, d2 = %lf\nERROR scalar_mod != mod\n",d1,d2), 1;
-
-  return 0;
-}
-
 //
 int main(int argc, char **argv)
 {
   
-  srand(time(NULL));
+  srand(1234);
 
   //
   if(test())

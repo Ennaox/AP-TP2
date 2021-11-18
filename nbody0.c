@@ -179,7 +179,7 @@ int main(int argc, char **argv)
   SDL_Window *window;
   SDL_Renderer *renderer;
 
-  srand(time(NULL));
+  srand(1234);
   
   //
   SDL_Init(SDL_INIT_VIDEO);
