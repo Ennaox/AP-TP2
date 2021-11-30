@@ -125,7 +125,6 @@ void compute_accelerations()
 
       accelerations.x[i] += c * (positions.x[j] - positions.x[i]);
       accelerations.y[i] += c * (positions.y[j] - positions.y[i]);
-
     }
   }
 }
