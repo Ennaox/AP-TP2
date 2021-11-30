@@ -121,12 +121,10 @@ void compute_accelerations()
 	 {
       double pos_i_j_x = positions.x[i] - positions.x[j];
       double pos_i_j_y = positions.y[i] - positions.y[j];
+      double c = GravConstant * masses[j] / (pow(sqrt(pos_i_j_x * pos_i_j_x + pos_i_j_y * pos_i_j_y),3) + 1e7);
 
-      accelerations.x[i] =  accelerations.x[i] + ((GravConstant * masses[j] / 
-              (pow(sqrt(pos_i_j_x * pos_i_j_x + pos_i_j_y * pos_i_j_y),3) + 1e7)) * (positions.x[j] - positions.x[i]));
-
-      accelerations.y[i] =  accelerations.y[i] + ((GravConstant * masses[j] / 
-              (pow(sqrt(pos_i_j_x * pos_i_j_x + pos_i_j_y * pos_i_j_y),3) + 1e7)) * (positions.y[j] - positions.y[i]));
+      accelerations.x[i] += c * (positions.x[j] - positions.x[i]);
+      accelerations.y[i] += c * (positions.y[j] - positions.y[i]);
 
     }
   }
@@ -137,9 +135,9 @@ void compute_velocities()
 {  
   for (int i = 0; i < nbodies; i++)
   {
-    velocities.x[i] = velocities.x[i] + accelerations.x[i];
+    velocities.x[i] += accelerations.x[i];
 
-    velocities.y[i] = velocities.y[i] + accelerations.y[i];
+    velocities.y[i] += accelerations.y[i];
   }
 }
 
@@ -148,8 +146,8 @@ void compute_positions()
 {
   for (int i = 0; i < nbodies; i++)
   {  
-    positions.x[i] = positions.x[i] + (velocities.x[i] + (accelerations.x[i] * 0.5));
-    positions.y[i] = positions.y[i] + (velocities.y[i] + (accelerations.y[i] * 0.5));
+    positions.x[i] += (velocities.x[i] + (accelerations.x[i] * 0.5));
+    positions.y[i] += (velocities.y[i] + (accelerations.y[i] * 0.5));
   }
 }
 
