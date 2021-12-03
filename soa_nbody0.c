@@ -14,10 +14,12 @@
 
 #include "rdtsc.h"
 
+#define ALLIGN 64
+
 //
 typedef struct {
 
-  double *x, *y;
+  double * restrict x, * restrict y;
   
 } vector;
 
@@ -28,7 +30,7 @@ int w, h;
 int nbodies, timeSteps;
 
 //
-double *masses, GravConstant;
+double masses, GravConstant;
 
 //
 vector positions, velocities, accelerations;
@@ -65,20 +67,20 @@ void init_system()
   nbodies = 500;
   GravConstant = 1;
   timeSteps = 1000;
-  
-  //
-  masses          = malloc(nbodies * sizeof(double));
-  positions.x     = malloc(nbodies * sizeof(double));
-  positions.y     = malloc(nbodies * sizeof(double));
-  velocities.x    = malloc(nbodies * sizeof(double));
-  velocities.y    = malloc(nbodies * sizeof(double));
-  accelerations.x = malloc(nbodies * sizeof(double));
-  accelerations.y = malloc(nbodies * sizeof(double));
+  masses = 5;
 
   //
+  positions.x     = aligned_alloc(ALLIGN,nbodies * sizeof(double));
+  positions.y     = aligned_alloc(ALLIGN,nbodies * sizeof(double));
+  velocities.x    = aligned_alloc(ALLIGN,nbodies * sizeof(double));
+  velocities.y    = aligned_alloc(ALLIGN,nbodies * sizeof(double));
+  accelerations.x = aligned_alloc(ALLIGN,nbodies * sizeof(double));
+  accelerations.y = aligned_alloc(ALLIGN,nbodies * sizeof(double));
+
+  //
+
   for (int i = 0; i < nbodies; i++)
     {
-      masses[i] = 5;
       
       positions.x[i] = randxy(10, w);
       positions.y[i] = randxy(10, h);
@@ -111,21 +113,22 @@ void resolve_collisions()
 //
 void compute_accelerations()
 { 
+  double cst = GravConstant * masses;
   for (int i = 0; i < nbodies; i++)
   {
       accelerations.x[i] = 0;
       accelerations.y[i] = 0;
       
       for(int j = 0; j < nbodies; j++)
-	 if(i != j)
-	 {
-      double pos_i_j_x = positions.x[i] - positions.x[j];
-      double pos_i_j_y = positions.y[i] - positions.y[j];
-      double c = GravConstant * masses[j] / (pow(sqrt(pos_i_j_x * pos_i_j_x + pos_i_j_y * pos_i_j_y),3) + 1e7);
+	   {
+        double pos_i_j_x = positions.x[i] - positions.x[j];
+        double pos_i_j_y = positions.y[i] - positions.y[j];
+        double c = cst / (pow(sqrt(pos_i_j_x * pos_i_j_x + pos_i_j_y * pos_i_j_y),3) + 1e7);
 
-      accelerations.x[i] += c * (positions.x[j] - positions.x[i]);
-      accelerations.y[i] += c * (positions.y[j] - positions.y[i]);
-    }
+        accelerations.x[i] += c * (positions.x[j] - positions.x[i]);
+        accelerations.y[i] += c * (positions.y[j] - positions.y[i]);
+      }
+
   }
 }
 
@@ -135,7 +138,6 @@ void compute_velocities()
   for (int i = 0; i < nbodies; i++)
   {
     velocities.x[i] += accelerations.x[i];
-
     velocities.y[i] += accelerations.y[i];
   }
 }

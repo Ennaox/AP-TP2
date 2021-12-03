@@ -12,6 +12,8 @@ vect_exe: vect_nbody0
 soa_exe: soa_nbody0
 	taskset -c 3 ./soa_nbody0 > out0_soa.dat
 
+compil: nbody0.c vect_nbody0 scalar_nbody0 soa_nbody0
+
 nbody0: nbody0.c
 	gcc -g -Ofast -funroll-loops -finline-functions -ftree-vectorize $< -o $@ -lm -lSDL2 
 
